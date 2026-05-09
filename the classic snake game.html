@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Aap</title>
+    <style>
+        body { background: #1a1a1a; display: flex; flex-direction: column; align-items: center; color: white; font-family: sans-serif; }
+        canvas { border: 5px solid #333; background: #000; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
+        .controls { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; }
+        button { padding: 15px; background: #333; color: white; border: none; border-radius: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Score: <span id="score">0</span></h1>
+    <canvas id="snakeGame" width="300" height="300"></canvas>
+    
+    <div class="controls">
+        <div style="grid-column: 2"> <button onclick="changeDir('up')">▲</button> </div>
+        <button onclick="changeDir('left')">◀</button>
+        <button onclick="changeDir('down')">▼</button>
+        <button onclick="changeDir('right')">▶</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("snakeGame");
+        const ctx = canvas.getContext("2d");
+        let box = 20, score = 0, d = "right";
+        let snake = [{x: 9 * box, y: 10 * box}];
+        let food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
+
+        function changeDir(dir) { d = dir; }
+
+        function draw() {
+            ctx.fillStyle = "black"; ctx.fillRect(0,0,300,300);
+            for(let i=0; i<snake.length; i++) {
+                ctx.fillStyle = (i==0) ? "#00ff00" : "#008000";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            }
+            ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
+
+            let sX = snake[0].x, sY = snake[0].y;
+            if(d == "left") sX -= box; if(d == "up") sY -= box;
+            if(d == "right") sX += box; if(d == "down") sY += box;
+
+            if(sX == food.x && sY == food.y) {
+                score++; document.getElementById("score").innerText = score;
+                food = {x: Math.floor(Math.random()*15)*box, y: Math.floor(Math.random()*15)*box};
+            } else { snake.pop(); }
+
+            let newHead = {x: sX, y: sY};
+            if(sX < 0 || sX >= 300 || sY < 0 || sY >= 300 || collision(newHead, snake)) {
+                clearInterval(game); alert("Game Over!"); location.reload();
+            }
+            snake.unshift(newHead);
+        }
+
+        function collision(head, array) {
+            for(let i=0; i<array.length; i++) if(head.x == array[i].x && head.y == array[i].y) return true;
+            return false;
+        }
+        let game = setInterval(draw, 150);
+    </script>
+</body>
+</html>
